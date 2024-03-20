@@ -3,7 +3,7 @@ import json
 import urllib.parse
 
 from .exceptions import AuthFailed
-from .models import Server, User
+from .client_models import Server, User
 
 class Pterodactyl_Client:
     def __init__(self, base_url, api_key):
@@ -35,7 +35,7 @@ class Pterodactyl_Client:
         response = requests.request('GET', endpoint, headers=headers)
         data = response.json()['data']
 
-        return [Server(server) for server in data]
+        return [Server(server['attributes']) for server in data]
         
     @property
     def account_details(self) -> User:
@@ -43,7 +43,7 @@ class Pterodactyl_Client:
         headers = self.headers
 
         response = requests.request('GET', endpoint, headers=headers)
-        return User(response.json()['data'])
+        return User(response.json()['attributes'])
 
     def details_2FA(self):
         endpoint = f'{self.base_url}/api/client/account/two-factor'

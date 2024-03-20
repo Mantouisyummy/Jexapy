@@ -1,7 +1,7 @@
 import requests
 from requests.exceptions import InvalidHeader
 
-from .models import User
+from .admin_models import User, Server
 
 class Pterodactyl_Application:
     def __init__(self, base_url, api_key):
@@ -30,25 +30,35 @@ class Pterodactyl_Application:
         endpoint = f'{self.base_url}/api/application/users'
         headers = self.headers
 
-        response = requests.request('GET', endpoint, headers=headers)
+        response = requests.get(endpoint, headers=headers)
         data = response.json()['data']
 
-        return [User(user) for user in data]
+        return [User(**datalist['attributes']) for datalist in data]
 
     def create_user(self, username, email, password):
         endpoint = f"{self.base_url}/api/application/users"
         headers = self.headers
-        data = {
+        middle_index = len(username) // 2
+        payload = {
             "username": username,
-            "first_name": username,
-            "last_name": username,
+            "first_name": username[:middle_index],
+            "last_name": username[middle_index:],
             "email": email,
             "password": password
         }
-        response = requests.post(endpoint, headers=headers, json=data)
+        response = requests.post(endpoint, headers=headers, json=payload)
         return response.json()
     
     #server
+
+    @property
+    def list_servers(self) -> Server:
+        endpoint = f"{self.base_url}/api/application/servers/"
+        headers = self.headers
+        response = requests.get(endpoint, headers=headers)
+        data = response.json()['data']
+
+        return [Server(**server['attributes']) for server in data]
     
     def suspend_server(self, server: str):
         endpoint = f"{self.base_url}/api/application/servers/{server}/suspend"
