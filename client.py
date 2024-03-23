@@ -35,16 +35,23 @@ class Pterodactyl_Client:
         response = requests.request('GET', endpoint, headers=headers)
         data = response.json()['data']
 
-        return [Server(server['attributes']) for server in data]
+        return [Server(**server['attributes']) for server in data]
         
     @property
     def account_details(self) -> User:
         endpoint = f'{self.base_url}/api/client/account'
+        
+        money_endpoint = f'{self.base_url}/api/client/store'
+        
         headers = self.headers
-
+        
         response = requests.request('GET', endpoint, headers=headers)
-        return User(response.json()['attributes'])
-
+        
+        money_response = requests.request('GET', money_endpoint, headers=headers)
+        money = money_response.json()['attributes']['balance']
+        
+        return User(**response.json()['attributes'], money=money)
+    
     def details_2FA(self):
         endpoint = f'{self.base_url}/api/client/account/two-factor'
         headers = self.headers
