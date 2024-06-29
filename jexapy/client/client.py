@@ -2,10 +2,10 @@ import requests
 import json
 import urllib.parse
 
-from .exceptions import AuthFailed
+from jexapy.exceptions import AuthFailed
 from .client_models import Server, User
 
-class Pterodactyl_Client:
+class Jexactyl_Client:
     def __init__(self, base_url, api_key):
         if base_url[-1] == "/":
             base_url = base_url[:-1]
@@ -16,6 +16,8 @@ class Pterodactyl_Client:
             "Accept": "application/json",
             "Content-Type": "application/json",
         }
+
+        self.check()
 
     def check(self):
         endpoint = f"{self.base_url}/api/client/account"
